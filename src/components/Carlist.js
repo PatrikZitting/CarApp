@@ -6,6 +6,8 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-material.css";
 import AddCar from "./AddCar";
+import EditCar from "./EditCar";
+import DeleteCar from "./DeleteCar";
 
 export default function Carlist() {
   const [cars, setCars] = React.useState([]);
@@ -17,7 +19,6 @@ export default function Carlist() {
       .catch((err) => console.error(err));
   };
 
-  // shift + alt +f
   React.useEffect(() => {
     fetchCars();
   }, []);
@@ -31,15 +32,16 @@ export default function Carlist() {
     { field: "price", sortable: true, filter: true },
     {
       headerName: "",
-      width: 100,
-      cellRenderer: (params) => (
-        <Button onClick={addCar} variant="outlined">
-          {" "}
-          EDIT
-        </Button>
+      cellRendererFramework: (params) => (
+        <EditCar updateCar={updateCar} params={params} />
       ),
     },
-    {},
+    {
+      headerName: "",
+      cellRendererFramework: (params) => (
+        <DeleteCar deleteCar={deleteCar} params={params} />
+      ),
+    },
   ];
 
   const addCar = (car) => {
@@ -55,6 +57,33 @@ export default function Carlist() {
       }
     });
   };
+
+  const updateCar = (car, link) => {
+    fetch(link, {
+      method: "PUT",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(car),
+    })
+      .then((response) => {
+        if (response.ok) fetchCars();
+        else alert("Something went wrong!");
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const deleteCar = (link) => {
+    fetch(link, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (response.ok) fetchCars();
+        else alert("Something went wrong!");
+      })
+      .catch((err) => console.error(err));
+  };
+  
 
   return (
     <div>
